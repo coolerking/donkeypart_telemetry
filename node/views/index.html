@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Donkey Telemetry v2</title>
+    <link rel="stylesheet" href="/d3.css">
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="/viz.v1.js"></script>
+    <!-- script src="http://vizjs.org/viz.v1.0.0.min.js"></script -->
+    <script
+		  src="https://code.jquery.com/jquery-3.3.1.min.js"
+		  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		  crossorigin="anonymous"></script>
+  </head>
+<body>
+<h1>Telemetry</h1>
+<svg width="1150" height="700"></svg>
+<script>
+  var svg=d3.select("svg");
+  
+  function mid(d){ return 0.5*(d[1]+d[0])}
+  
+  // green gauge : angle
+  let g2=svg.append("g").attr("class","green").attr("transform","translate(300,300)");
+  let domain2 = [-50,50];
+
+  var gg2 = viz.gg()
+		.domain(domain2)
+		.ticks(d3.range(domain2[0], domain2[1]+1,4))
+		.majorTicks(function(d){return (d-10)%20===0})
+		.innerFaceColor("#4F8730")
+		.faceColor("#4F8730")
+		.needleColor("#F74100")
+		.outerRadius(300)
+		.innerRadius(30)
+		.value(mid(domain2))
+		.duration(1000)
+		.angleOffset(Math.PI/2)
+		.ease("back-in");
+  gg2.defs(svg,2);
+  g2.call(gg2);
+  
+  // black gauge : throttle
+  var g3=svg.append("g").attr("class","red").attr("transform","translate(950,305)");
+  var domain3 = [0,100];
+  var gg3 = viz.gg()
+		.domain(domain3)
+		.outerRadius(300)
+		.innerRadius(30)
+		.value(mid(domain3))
+		.duration(1000)
+		.ease("bounce");
+
+  gg3.defs(svg,3);
+  g3.call(gg3);  
+
+  // node.js via ajax
+  setInterval( function(){
+    $.ajax({
+      url: '/telem',
+      type: 'POST',
+      data:{}
+    })
+    .done( (msg) => {
+      console.log("[done] arrive");
+      //console.log(msg);
+      gg2.setNeedle(msg.angle);
+      gg3.setNeedle(msg.throttle);
+    })
+    .fail( (msg) => {
+      console.log("[fail]")
+      console.log(msg)
+    })
+    .always( (msg) => {
+    });},
+  800);
+
+  d3.select(self.frameElement).style("height", "350px");
+</script>
+</body>
+</html>

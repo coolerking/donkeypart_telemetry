@@ -1,0 +1,28 @@
+{
+    "//1": "describes your app and its dependencies",
+    "//2": "https://docs.npmjs.com/files/package.json",
+    "//3": "updating this file will download and update your packages",
+    "name": "donkey-telemetry",
+    "version": "0.0.1",
+    "description": "Donkey telemetry system",
+    "main": "app.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "dependencies": {
+      "express": "^4.16.4",
+      "mqtt": "^2.18.8"
+    },
+    "engines": {
+      "node": "8.x"
+    },
+    "repository": {
+      "url": "https://glitch.com/edit/#!/hello-express"
+    },
+    "license": "MIT",
+    "keywords": [
+      "node",
+      "glitch",
+      "express"
+    ]
+  }

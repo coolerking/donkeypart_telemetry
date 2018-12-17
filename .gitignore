@@ -1,0 +1,9 @@
+__pycache__/
+iotf/emperor.ini
+iotf/rocinante.ini
+iotf/telemetry.ini
+test/iotf/emperor.ini
+test/iotf/rocinante.ini
+test/iotf/telemetry.ini
+.git
+*.BAK
