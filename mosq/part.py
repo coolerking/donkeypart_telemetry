@@ -239,6 +239,7 @@ class PubTelemetry(MosqPubBase):
         self.count = 0
         self.pub_count = pub_count
         self.tub_dir = os.path.expanduser(tub_dir)
+        self.image_array = None
         if not os.path.exists(self.tub_dir) or not os.path.isdir(self.tub_dir):
             raise Exception('tub_dir={} not exists or not isdir'.format(tub_dir))
         self.log('[__init__] end')
@@ -271,8 +272,12 @@ class PubTelemetry(MosqPubBase):
             return
         self.log('[run] image_filename=' + image_filename)
         image_path = os.path.join(self.tub_dir, image_filename)
-        with open(image_path, 'r') as f:
-            image_array = bytearray(f.read())
+        if not os.path.exists(image_path) or not os.path.isfile(image_path):
+            self.log('[run] {} is not exists or is not a file'.format(image_filename))
+            image_array = self.image_array
+        else:
+            with open(image_path, 'r') as f:
+                image_array = bytearray(f.read())
         msg_dict = {
             "throttle": throttle,
             "angle": angle,
@@ -283,6 +288,7 @@ class PubTelemetry(MosqPubBase):
         self.log('[run] publish :' + json.dumps(msg_dict))
         self.throttle = throttle
         self.angle = angle
+        self.image_array = image_array
 
     def shutdown(self):
         """

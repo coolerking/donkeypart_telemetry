@@ -206,6 +206,7 @@ class PubTelemetry(IoTFPubBase):
         self.log('[run] image_filename=' + image_filename)
         image_path = os.path.join(self.tub_dir, image_filename)
         if not os.path.exists(image_path) or not os.path.isfile(image_path):
+            self.log('[run] {} is not exists or is not a file'.format(image_filename))
             image_array = self.image_array
         else:
             with open(image_path, 'r') as f:
