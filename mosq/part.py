@@ -286,6 +286,59 @@ class PubTelemetry(MosqPubBase):
         self.disconnect()
         self.log('[shutdown] disconnect client')
 
+class PubPilot(MosqPubBase):
+    """
+    イメージデータをMQTTブローカへPublishするクラス。
+    """
+    def __init__(self, conf_path, tub_dir, debug=False):
+        """
+        設定ファイルを読み込み、MQTTクライアントを生成、接続する。
+
+        引数
+            config_path     設定ファイルのパス
+            tub_dir         tubデータディレクトリのパス
+            debug           デバッグフラグ
+        戻り値
+            なし
+        """
+        super().__init__(conf_path, debug)
+        self.tub_dir = os.path.expanduser(tub_dir)
+        if not os.path.exists(self.tub_dir) or not os.path.isdir(self.tub_dir):
+            raise Exception('tub_dir={} not exists or not isdir'.format(tub_dir))
+        self.log('[__init__] end')
+
+    def run(self, image_filename):
+        """
+        イメージデータのbytearrayを含むJSONデータをMQTTブローカへ送信する。
+        引数
+            image_filename    イメージデータファイル名（ファイル名のみ）
+        戻り値
+            なし
+        """
+        self.log('[run] image_filename=' + image_filename)
+        image_path = os.path.join(self.tub_dir, image_filename)
+        with open(image_path, 'r') as f:
+            image_array = bytearray(f.read())
+        msg_dict = {
+            "cam/image_array": image_array,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+        self.publish(msg_dict=msg_dict)
+        self.log('[run] publish :' + json.dumps(msg_dict))
+
+    def shutdown(self):
+        """
+        MQTTクライアント接続を解除する。
+
+        引数
+            なし
+        戻り値
+            なし
+        """
+        self.disconnect()
+        self.log('[shutdown] disconnect client')
+
+
 class SubPilot(MosqSubBase):
     """
     AIのかわりにMQTTブローカからスロット、アングル値を受け取るSubPilotクラス
