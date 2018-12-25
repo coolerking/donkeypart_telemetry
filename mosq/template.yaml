@@ -2,6 +2,6 @@ broker:
   host: '127.0.0.1'
   port: 1883
 publisher:
-  topic: 'pilot/rocinante'
+  topic: 'mosq/evt/status/fmt'
 subscriber:
-  topic: 'pilot/rocinante'
+  topic: 'mosq/evt/status/fmt'

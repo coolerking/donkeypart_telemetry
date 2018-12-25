@@ -21,24 +21,20 @@
      host: '127.0.0.1' # IPアドレスを変更する
      port: 1883
     publisher:
-      topic: 'pilot/rocinante'
+      topic: 'mosq/evt/status/fmt'
     subscriber:
-      topic: 'pilot/rocinante'
+      topic: 'mosq/evt/status/fmt'
    ```
-3. `mosq/part.py` と `mosq/<ブローカのホスト名>.yaml`をraspberry Pi上の`~/mycar/mosq`へコピー
+3. `mosq/__init__.py` と `mosq/<ブローカのホスト名>.yaml`をraspberry Pi上の`~/mycar/mosq`へコピー
 4. `manage.py`にインポート行を追加
    ```python
-   from mosq.part import PubTelemetry
+   from mosq import PubTelemetry
    ```
 5. `manage.py`の`V.start()`直前に以下のコードを追加
    ```python
-    # テレメトリーデータの送信
-    # IoTP
-    #tele = PubTelemetry('iotf/<デバイスID>.ini', pub_count=2000)
-    # eclipse-mosquitto
-    tele = PubTelemetry('mosq/<ブローカのホスト名>.yaml')
-    # IBM Watson IoT Platform
-    V.add(tele, inputs=['throttle', 'angle'])
+    tele = PubTelemetry('mosq/<ブローカのホスト名>.yaml', pub_count=20*5, debug=False)
+    V.add(tele, inputs=['cam/image_array', 'user/mode', 'user/angle', 'user/throttle',
+                  'pilot/angle', 'pilot/throttle'])
    ```
 
 ## Donkey Carの運転開始
@@ -47,7 +43,7 @@
    ```python
    # 手動運転
    python manage.py drive --js
-   # 自動運転
+   # 自動運転(Web UIから自動運転モードを設定すると運転開始)
    python manage.py drive --model models/mypilot
    ```
    
