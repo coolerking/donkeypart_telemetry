@@ -1,9 +1,13 @@
-# IBM Watson IoT Platform用 Donkey Carパーツサンプル
+# PubTelemetry with IBM Watson IoT Platform
 
-## 概要
-[part.py](./part.py) には、Publisherサンプルである `PubTelemetry` と Subscriberサンプルの `SubPilot` の２つのクラスを提供しているが、本ドキュメントでは前者側のインストール方法のみ紹介する。
+Donkey Telemetryを使用する場合は `PubTelemetry` クラスを `manage.py` に追加する。
 
-## インストール
+## 注意事項
+
+* Quickstart環境はイメージデータを送信できないためPubTelemetry/SubTelemetryが動作しない
+* 以下の手順は、ライトアカウント・Freeプランを用いて動作検証を行った
+
+## セットアップ
 
 ### ブローカの作成
 
@@ -39,17 +43,22 @@
 6. `part.py` と `<デバイスID>.ini`をraspberry Pi上の`~/mycar/iotf`へコピー
 7. `manage.py`にインポート行を追加
    ```python
-   from iotf.part import PubTelemetry
+   from donkeypart_telemetry.iotf import PubTelemetry
    ```
 8. `manage.py`の`V.start()`直前に以下のコードを追加
    ```python
     # テレメトリーデータの送信
-    # IoTP
+    tubitems = [
+        'cam/image_array',
+        'user/mode',
+        'user/angle',
+        'user/throttle',
+        'pilot/angle',
+        'pilot/throttle',
+        'angle',
+        'throttle']
     tele = PubTelemetry('iotf/emperor.ini', pub_count=2000)
-    # eclipse-mosquitto
-    #tele = PubTelemetry('mosq/emperor.yaml')
-    # IBM Watson IoT Platform
-    V.add(tele, inputs=['throttle', 'angle'])
+    V.add(tele, inputs=tubitems)
    ```
 
 ## Donkey Carの運転開始

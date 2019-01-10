@@ -1,67 +1,104 @@
 # Donkeypart Telemetry
 
-
-Donkey Car上のパーツからMQTTブローカへ送信されているデータを可視化テレメトリプログラム　Donkey Telemeter へデータを送り出すDonkeyパーツプログラムを提供する。
-
-## システム構成
-
-MQTTをハブとした非同期通信で実現している。
-
-![Donkey Telemetry アーキテクチャ](./assets/architecture.png)
-
-* [Donkey Car](http://www.donkeycar.com/)
-   自律走行をRaspberryPiや市販のRCカーで実現できるオープンソースの自動運転プラットフォーム。
-* [IBM Watson IoT Platform](https://www.ibm.com/jp-ja/marketplace/internet-of-things-cloud)
-   IBM Cloud上で提供しているMQTTブローカサービス。検証はライトプランの無料枠で実施。
-- [Glitch.com](https://glitch.com)
-   Node.js開発・実行環境を無料で提供してくれるサービス。シェルコンソールもありpython3.xも既にインストール済みであるため、テストスクリプトの実行も可能。GitHub連携可能。
-
-### Donkey Car
-
-[Donkey Car](http://www.donkeycar.com/)とは、Raspberry Piを市販のRCカーに搭載して、安価に自動運転を実現するプラットフォームである。
-
-自動運転のための[プログラム](https://github.com/autorope/donkeycar)や一部の改造用パーツの[設計図](https://www.thingiverse.com/thing:2260575)がオープンソース化されている。またコミュニティが運営しているネット店舗（[Donkey Store/US](https://squareup.com/store/donkeycar)/[Robocar Store/香港](https://www.robocarstore.com/)）よりフルキットで購入することも可能である。
-
-組み立て方は[ドキュメント](https://github.com/coolerking/donkeycar_jpdocs)やこちらの[スライド](https://www.slideshare.net/HoriTasuku/donkey-car)を参考にすれば、RCカーやRaspberry Piの結線に関する経験の少ない人でも制作することができる。
-
 ![Donkey Car](./assets/donkeycar.jpg)
 
-* Donkey Car は Vehiecleフレームワークを採用しており、登録された一連の作業をループすることができる
-* 指定されたメソッドを実装したパーツと呼ばれるPythonクラスを作成すると、Vehicleフレームワークへ追加することができる
-* パーツに実装する"一連の作業"は同期処理、非同期処理どちらでも実装可能である
+Donkey Car上の`manage.py`を編集して、Vehicleフレームワーク上にパーツとして登録することのできる、Publisher/Subscriberを提供する。
 
-### Donkeypart Telemetry
+![Donkey Telemetry](./assets/meter2.png)
 
-本リポジトリでは、MQTTブローカへPublishするパーツおよびMQTTブローカからメッセージを受け取るSubscriberパーツの２つを提供する。
+[Donkey Telemetry](https://github.com/coolerking/donkey_telemetry) と連携することで、Web上でテレメトリ情報を参照することができる。
 
-IBM Watson IoT Platform用 は [./iotf/part.py](./iotf/part.py)に、eclipse-mosquitte用 は [./mosq/part.py](./mosq/part.py) に実装が存在する。
+## 対応するMQTTブローカ
 
-#### Publisher パーツ
-
-- テレメトリー用Publisherパーツ `PubTelemetry`
-   リアルタイムのスロットル値、アングル値の監視ができるように、MQTTブローカへ送信するパーツをPublisherのサンプルとして作成した。
+* Eclipse Mosquitto
+   OSSのMQTTブローカ。[`tests/conf/mosq/docker-compose.yml`](./tests/conf/mosq/docker-compose.yml) を提供しているので、Docker Desktopや[play with Docker](https://labs.play-with-docker.com/) などでコンテナ起動することができる。
 
 
-#### Subscriber パーツ
+* IBM Watson IoT Platform
+   IBM社が提供するクラウドサービス [IBM Cloud](https://cloud.ibm.com/registration) 内の１サービスとして提供されているMQTTブローカ]。執筆時点では、Freeプランを提供しており、無償でテストすることができる。
 
-- 外部のオートパイロットサーバから操作情報を取得するパーツ `SubPilot`
-   PubTelemetryとは逆に、スロットル値、アングル値を外部のサーバから受け取るためのパーツをサンプルとして作成した。ただし、判断要素となるイメージファイルデータを送信していないため、本格的に外部ノード上で推論処理を実行させるには、機能が不足している。あくまで参考の実装の位置づけである。
+> Mosquittoを使用する場合は`donkeypart_telemetry.mosq`を、IBM Watson IoT Platform を使用する場合は`donkeypart_telemetry.iotf`をインポートする。
 
+> IBM Watson IoT Platform のQuickstart環境では動作しない（Quickstartでは、イメージ送受信をサポートしていない）。
 
-### Donkey Telemetry
+## インストール手順
 
-Donkeypart TelemetryによってMQTTブローカへpublishしているデータを参照することのできるWeb UI。
+1. Donkey Car上のRaspberry Piへログイン
+2. `cd ~/`
+3. `git clone https://github.com/coolerking/donkeypart_telemetry.git`
+4. `cd donkeypart_telemetry`
+5. IBM IoT Platform を使用する場合、`pip install ibmiotf`を実行
+6. Eclipse Mosquitto を使用する場合、`pip install paho-mqtt`を実行
+7. `pip install -e .`
+8. `cd ~/mycar`
+9. IBM IoT Platform を使用する場合
+ 1. IBM Cloud 上にIBM Watson IoT Platform インスタンスを構築し、コンソールを開いて、組織IDを確認する
+ 2. コンソール上でデバイスを登録し、デバイスタイプ、デバイスID、APIキー、秘密トークンを取得する
+ 3. コンソール上で、アプリケーションを登録し、秘密トークンを取得する
+ 4. `vi telemetry.ini`を実行し、編集する
+    ```ini
+    [device]
+    org={組織ID}
+    type={デバイスタイプ}
+    id={デバイスID}
+    auth-method=token
+    auth-token={デバイス側秘密トークン}
+    clean-session=true
 
-詳細は、[GitHubリポジトリ coolerking/donkey_telemetry](https://github.com/coolerking/donkey_telemetry)を参照のこと。
+    [application]
+    org={組織ID}
+    id={アプリケーションを一意に泡ラス文字列を適当につける}
+    auth-method=apikey
+    auth-key={APIキー}
+    auth-token={アプリケーション側秘密キー}
+    clean-session=true
+    ```
+9. `vi manage.py` を実行し、以下のようにVehicleフレームワークへ追加
+   ```python
+        :
+        # Eclipse Mosquitto を使用する場合
+        from donkeypart_telemetry.iotf import PubTelemetry, SubTelemetry
+        # IBM Watson IoT Platform を使用する場合 
+        from donkeypart_telemetry.iotf import PubTelemetry, SubTelemetry
 
+        :
+        # drive関数内の適当な位置に以下のコードを追加
 
-## ライセンス
+        # Publish/Subscribe対象データ
+        tubitems = [
+            'cam/image_array',
+            'user/mode',
+            'user/angle',
+            'user/throttle',
+            'pilot/angle',
+            'pilot/throttle',
+            'angle',
+            'throttle'
+        # MQTTブローカ上にPublishされたデータを取り込む場合
+        self.vehicle.add(SubTelemetry(app_conf_path='telemetry.ini', dev_conf_path='telemetry.ini'), outputs=tubitems)
 
-本リポジトリ上のコンテンツはすべて[MITライセンス](./LICENSE)準拠とする。
+        # データをMQTTブローカへ送信したい場合
+        self.vehicle.add(PubTelemetry(dev_conf_path='telemetry.ini', pub_count=20), inputs=tubitems)
+        :
+   ```
+10. `python manage.py drive` を実行し、自動・手動運転を開始する
 
+> `telemetry.ini`において、PubTelemetryのみ使用する場合はdeviceセクションのみでよいが、SubTelemetryのみを使用する場合はapplicationセクションだけでもよい（ただし、すべてのデバイスタイプおよびデバイスIDをSubscribe対象となる）。
 
+## Donkey Telemetryへの連携
 
+以下の図は、IBM Watson IoT PlatformおよびGlitchの利用を前提としたシステム構成図である。
 
+![システム構成](./assets/architecture.png)
 
+本リポジトリは上図右側の黄色部分のソースコードを提供している。
 
+## 参考
 
+- [本家donkeycarリポジトリ](https://github.com/autorope/donkeycar)
+- [DonkeyCarドキュメントの日本語訳](https://github.com/coolerking/donkeycar_jpdocs)
+- [Tubデータを再生するパーツクラス](https://github.com/coolerking/donkeypart_tub_loader)
+- `tubclean`コマンドにより穴あきになった [Tubデータの連番を再整列するツール](https://github.com/coolerking/tubarrange)
+- [Donkey Car用Logicool F710/Elecom JC-U3913Tジョイスティックコントローラ](https://github.com/coolerking/donkeypart_game_controller)
+
+- [Donkey Telemetry](https://github.com/coolerking/donkey_telemetry)

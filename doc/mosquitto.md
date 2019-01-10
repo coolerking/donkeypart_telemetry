@@ -1,9 +1,9 @@
-# eclipse-mosquitto 用 Donkey Carパーツサンプル
+# PubTelemetry with Eclipse Mosquitto
 
-## 概要
-[part.py](./part.py) には、Publisherサンプルである `PubTelemetry` と Subscriberサンプルの `SubPilot` の２つのクラスを提供しているが、本ドキュメントでは前者側のインストール方法のみ紹介する。
+Donkey Telemetryを使用する場合は `PubTelemetry` クラスを `manage.py` に追加する。
 
-## インストール
+
+## セットアップ
 
 ### ブローカの作成
 

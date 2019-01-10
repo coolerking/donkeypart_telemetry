@@ -1,0 +1,7 @@
+broker:
+  host: '127.0.0.1'
+  port: 1883
+publisher:
+  topic: 'mosq/evt/status/fmt'
+subscriber:
+  topic: 'mosq/evt/status/fmt/+'

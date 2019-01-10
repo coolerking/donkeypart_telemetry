@@ -4,4 +4,4 @@ broker:
 publisher:
   topic: 'mosq/evt/status/fmt'
 subscriber:
-  topic: 'mosq/evt/status/fmt'
+  topic: 'mosq/evt/status/fmt/+'
